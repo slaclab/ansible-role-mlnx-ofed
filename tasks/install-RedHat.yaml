@@ -1,0 +1,42 @@
+- name: Install dependencies
+  package:
+    name: 
+    - tcsh
+    - tcl 
+    - kernel-modules-extra 
+    - gcc-gfortran 
+    - libnl3 
+    - tk
+    - lsof
+    state: latest
+
+- name: Download install tarball
+  get_url:
+    url: "{{ mlnx_ofed_tarball_url }}"
+    dest: "/tmp/{{ mlnx_ofed_tarball }}"
+    mode: 0755
+
+- name: Create extract dir
+  file:
+    path: /tmp/{{ (mlnx_ofed_tarball | splitext)[0] }}
+    state: directory
+
+- name: Extract tarball
+  ansible.builtin.unarchive:
+    src: "/tmp/{{ mlnx_ofed_tarball }}"
+    dest: "/tmp/"
+    remote_src: yes
+
+- name: Install
+  command: "/tmp/{{ (mlnx_ofed_tarball | splitext)[0] }}/mlnxofedinstall {{ mlnx_ofed_install_args }} --force"
+  become: yes
+  register: mlnx_ofed_log
+  changed_when: mlnx_ofed_log.rc == 0
+
+- name: Cleanup
+  file:
+    path: "{{ item }}"
+    state: absent
+  with_items:
+  - "/tmp/{{ mlnx_ofed_tarball }}"
+  - "/tmp/{{ (mlnx_ofed_tarball | splitext)[0] }}"

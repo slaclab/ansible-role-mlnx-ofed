@@ -1,0 +1,17 @@
+# we only install if this command failed, but we should probably do some other checks like ofed and kernel version requirements etc
+- name: Check for install
+  shell: ibv_devices | grep mlx
+  register: installed
+  ignore_errors: True
+  changed_when: installed|bool
+
+- name: debug
+  debug:
+    var: installed
+  when:
+  - 0 > 1
+
+- include: install-RedHat.yaml
+  when:
+  - ansible_os_family == "RedHat"
+  - installed.failed

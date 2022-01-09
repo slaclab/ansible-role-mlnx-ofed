@@ -1,0 +1,49 @@
+- name: Install repository
+  get_url:
+    url: "{{ ofed_repository_file }}"
+    dest: /etc/yum.repos.d/mellanox_ofed.repo
+  become: true
+
+- name: Add proxy to repo
+  lineinfile:
+    path: /etc/yum.repos.d/mellanox_ofed.repo
+    line: "proxy={{ ofed_repository_proxy }}"
+
+- name: Add GPG keys
+  rpm_key:
+    key: "{{ item }}"
+    state: present
+  register: rpm_key
+  with_items: "{{ ofed_repository_key }}"
+
+- name: Make cache if GPG key changed
+  command: "yum -q makecache -y"
+  when: rpm_key is changed
+  args:
+    warn: false
+
+- name: Install dependencies
+  package:
+    name:
+    - python3-devel
+    - libnl3
+    - createrepo
+    - lsof
+    - redhat-rpm-config
+    - rpm-build
+    - gcc
+    - gtk2
+    - atk
+    - cairo
+    - gcc-gfortran
+    - tcsh
+    - tcl
+    - tk
+
+- name: Install infiniband support
+  dnf:
+    name: "@Infiniband Support"
+    state: present
+  become: true
+
+

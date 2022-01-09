@@ -1,0 +1,4 @@
+mlnx_ofed_tarball: MLNX_OFED_LINUX-5.5-1.0.3.2-rhel8.5-x86_64.tgz
+mlnx_ofed_tarball_url: "http://yum.slac.stanford.edu/mlnx_ofed/{{ mlnx_ofed_tarball }}" 
+
+mlnx_ofed_install_args: ""
