@@ -1,17 +1,24 @@
 # we only install if this command failed, but we should probably do some other checks like ofed and kernel version requirements etc
-- name: Check for install
+- name: Check for mlnx OFED devices
   shell: ibv_devices | grep mlx
-  register: installed
+  register: mlnx_up
   ignore_errors: True
-  changed_when: installed|bool
-
-- name: debug
-  debug:
-    var: installed
-  when:
-  - 0 > 1
+  changed_when: mlnx_up|bool
 
 - include: RedHat-tarball.yaml
   when:
   - ansible_os_family == "RedHat"
-  - installed.failed
+  - mlnx_up.failed
+
+- name: "Restart openibd"
+  service:
+    name: openibd
+    state: restarted
+  when:
+  - mlnx_up.failed
+
+- name: Check mlnx OFED installed
+  shell: ibv_devices | grep mlx
+  register: mlnx_up
+  changed_when: mlnx_up|bool
+

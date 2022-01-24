@@ -35,6 +35,10 @@
   register: mlnx_ofed_log
   changed_when: mlnx_ofed_log.rc == 0
 
+- name: debugging
+  debug:
+    msg: "{{ mlnx_ofed_log }}"
+
 - name: Cleanup
   file:
     path: "{{ item }}"
@@ -42,3 +46,4 @@
   with_items:
   - "/tmp/{{ mlnx_ofed_tarball }}"
   - "/tmp/{{ (mlnx_ofed_tarball | splitext)[0] }}"
+
