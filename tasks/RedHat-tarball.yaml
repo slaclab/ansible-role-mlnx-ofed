@@ -8,6 +8,8 @@
     - libnl3 
     - tk
     - lsof
+    - rpm-build
+    - kernel-rpm-macros
     state: latest
 
 - name: Download install tarball
