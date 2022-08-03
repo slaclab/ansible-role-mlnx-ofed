@@ -26,12 +26,12 @@
 - name: "Restart openibd"
   service:
     name: openibd
-    state: restarted
+    state: started
   when:
-  - mlnx_up.failed
+  - mlnx_up.failed or ( mlnx_ofed_upgrade and upgrade_mlnx )
 
 - name: Check mlnx OFED installed
   shell: ibv_devices | grep mlx
   register: mlnx_up
-  changed_when: mlnx_up|bool
+  # changed_when: mlnx_up|bool
 

@@ -6,4 +6,4 @@ mlnx_ofed_tarball_url: "http://yum.slac.stanford.edu/mlnx_ofed/{{ mlnx_ofed_tarb
 
 mlnx_ofed_upgrade: false
 
-mlnx_ofed_install_args: "--add-kernel-support --skip-repo"
+mlnx_ofed_install_args: "--kmp --add-kernel-support --skip-repo"
