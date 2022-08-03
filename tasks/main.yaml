@@ -5,10 +5,23 @@
   ignore_errors: True
   changed_when: mlnx_up|bool
 
+- name: Gather installed mlnx OFED version
+  shell: ofed_info -s
+  ignore_errors: True
+  register: installed_mlnx
+
+- name: "Check installed mlnx OFED version {{ installed_mlnx.stdout | regex_replace(':','') }} against {{ mlnx_ofed_version }}" 
+  set_fact:
+    upgrade_mlnx: "{{ 'false' if installed_mlnx.stdout.replace(':','') == mlnx_ofed_version else 'true' }}"
+
+- name: upgrade information
+  debug:
+    msg: "mlnx ofed currently installed? {{ not mlnx_up.failed }}, allow upgrade? {{ mlnx_ofed_upgrade }}, upgrade required? {{ upgrade_mlnx }}"
+
 - include: RedHat-tarball.yaml
   when:
   - ansible_os_family == "RedHat"
-  - mlnx_up.failed
+  - mlnx_up.failed or ( mlnx_ofed_upgrade and upgrade_mlnx )
 
 - name: "Restart openibd"
   service:
