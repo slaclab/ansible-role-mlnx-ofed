@@ -14,14 +14,28 @@
   set_fact:
     upgrade_mlnx: "{{ 'false' if installed_mlnx.stdout.replace(':','') == mlnx_ofed_version else 'true' }}"
 
+- name: "check ofa_kernel installation"
+  stat:
+    path: '/usr/src/ofa_kernel/default'
+  register: ofa_kernel
+
+- name: 'setup ofa_kernel paths'
+  set_fact:
+    upgrade_ofa_kernel: 'false'
+
+- name: 'ofa_kernel needs update'
+  set_fact:
+    upgrade_ofa_kernel: 'true'
+  when: not kernel_version in ofa_kernel.stat.lnk_source 
+
 - name: upgrade information
   debug:
-    msg: "mlnx ofed currently installed? {{ not mlnx_up.failed }}, allow upgrade? {{ mlnx_ofed_upgrade }}, upgrade required? {{ upgrade_mlnx }}"
+    msg: "mlnx ofed currently installed? {{ not mlnx_up.failed }}, allow upgrade? {{ mlnx_ofed_upgrade }}, upgrade_mlnx required? {{ upgrade_mlnx }}, update_ofa_kernel required {{ upgrade_ofa_kernel }}"
 
 - include: RedHat-tarball.yaml
   when:
   - ansible_os_family == "RedHat"
-  - mlnx_up.failed or ( mlnx_ofed_upgrade and upgrade_mlnx )
+  - mlnx_up.failed or ( mlnx_ofed_upgrade and ( upgrade_mlnx or upgrade_ofa_kernel ) )
 
 - name: "Configure and start openibd service"
   service:
